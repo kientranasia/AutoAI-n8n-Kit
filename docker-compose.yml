@@ -157,28 +157,29 @@ services:
     <<: *init-ollama
     depends_on:
       - ollama-gpu
-  ngrok:
-      image: ngrok/ngrok:latest
-      restart: unless-stopped
-      command:
-        - "start"
-        - "--all"
-        - "--config"
-        - "/etc/ngrok.yml"
-      volumes:
-        - ./ngrok.yml:/etc/ngrok.yml
-      ports:
-        - 4040:4040
-      depends_on:
-        - n8n  
-  # Uncomment the following block to enable Cloudflare Tunnel
-  # cloudflare-tunnel:
-  #     image: cloudflare/cloudflared:latest              
-  #     container_name: cloudflare-tunnel                 
-  #     hostname: cloudflare-tunnel                            
-  #     restart: unless-stopped                           
-  #     command: tunnel --no-autoupdate run
-  #     environment:
-  #       - TUNNEL_TOKEN=${CLOUDFLARE_TUNNEL_TOKEN}       
+  # Uncomment the following block to enable Ngrok Tunnel
+  # ngrok:
+  #     image: ngrok/ngrok:latest
+  #     restart: unless-stopped
+  #     command:
+  #       - "start"
+  #       - "--all"
+  #       - "--config"
+  #       - "/etc/ngrok.yml"
+  #     volumes:
+  #       - ./ngrok.yml:/etc/ngrok.yml
+  #     ports:
+  #       - 4040:4040
   #     depends_on:
-  #       - n8n
+  #       - n8n  
+  # Uncomment the following block to enable Cloudflare Tunnel
+  cloudflare-tunnel:
+      image: cloudflare/cloudflared:latest              
+      container_name: cloudflare-tunnel                 
+      hostname: cloudflare-tunnel                            
+      restart: unless-stopped                           
+      command: tunnel --no-autoupdate run
+      environment:
+        - TUNNEL_TOKEN=${CLOUDFLARE_TUNNEL_TOKEN}       
+      depends_on:
+        - n8n
