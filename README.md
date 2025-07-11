@@ -1,22 +1,33 @@
-# AutoAI-Starter-Kit 🚀
+# 🧠 AI Agent Lab – Beginner Setup Guide
 
-_AutoAI-Starter-Kit is a self-hosted AI automation framework, customized and maintained by **Athsent** for the **AutoAI** product line._
+Welcome to the **AI Agent Lab** – your playground to learn and build AI agents using [n8n](https://n8n.io), [Docker](https://www.docker.com/), and the **AutoAI-n8n-Kit**.
 
-![n8n Demo Flow](assets/n8n-demo.gif)
-
-*Visual demo: Example n8n workflow in action.*
+> This guide is designed for non-tech users. No coding required.
 
 ---
 
-## About AutoAI-Starter-Kit
+## 📦 About This Kit
 
-AutoAI-Starter-Kit provides a robust, extensible platform for deploying and operating autonomous AI agents. It is built on the n8n team's Self-hosted AI Starter Kit and enhanced by Athsent for enterprise and product use.
+The **AutoAI-n8n-Kit** is a ready-to-run environment, built on the open-source [n8n AI Starter Kit](https://github.com/n8n-io/ai-starter), with enhancements for learning, building, and scaling AI automations.
 
-**Key Features:**
-- **Cloudflare Integration:** Secure, performant domain management
-- **Database Support:** Persistent workflow storage
-- **RAG (Retrieval-Augmented Generation):** Smarter AI with knowledge retrieval
-- **Custom RSS Feeds:** Self-hosted RSSHub for crawling and generating feeds from any website
+### ✨ Key Features
+
+- **n8n self-hosted** – No-code visual automation engine
+- **Cloudflare Tunnel** – Secure public access
+- **RAG-ready** – Supports Retrieval-Augmented Generation
+- **RSSHub** – Web content crawler for custom RSS feeds
+- **Database persistence** – Save workflows across sessions
+
+---
+
+## 🛠 Prerequisites
+
+Before starting, install these tools:
+
+1. [Docker Desktop](https://www.docker.com/products/docker-desktop)
+2. [Git](https://git-scm.com)
+
+✅ Works on macOS, Windows, and Linux.
 
 ---
 
@@ -29,22 +40,24 @@ git clone https://github.com/kientranasia/AutoAI-n8n-Kit.git
 cd AutoAI-n8n-Kit
 ```
 
-### 2. Configure Environment Variables
+### 2. Setup Environment Variables
 
-- Copy `.env.example` to `.env` in the root and in `rsshub/`:
-  ```bash
-  cp .env.example .env
-  cp rsshub/.env.example rsshub/.env
-  ```
-- Edit the `.env` files to set your secrets and credentials.
+```bash
+cp .env.example .env
+cp rsshub/.env.example rsshub/.env
+```
 
-### 3. Start the Main Stack
+You can keep default values for testing locally.
+
+### 3. Start the AI Lab Stack
+
+Start the core n8n system:
 
 ```bash
 docker compose up -d
 ```
 
-### 4. Start RSSHub
+Start RSSHub (for web crawling):
 
 ```bash
 cd rsshub
@@ -53,48 +66,74 @@ docker compose up -d
 
 ---
 
-## 🛠️ Components
+## ✅ Access the n8n Dashboard
 
-- **n8n** (`autoai-n8n`): Low-code automation platform ([http://localhost:5678/](http://localhost:5678/))
-- **Qdrant** (`autoai-qdrant`): Vector database ([http://localhost:6333/](http://localhost:6333/))
-- **PostgreSQL** (`autoai-postgres`): Relational database
-- **Cloudflare Tunnel** (`autoai-cloudflare-tunnel`): Secure remote access
-- **RSSHub** (`autoai-rsshub`): Self-hosted RSS feed generator ([http://localhost:1200/](http://localhost:1200/))
+Open your browser and go to:
 
----
+```
+http://localhost:5678
+```
 
-## 🧑‍💻 Usage
+Create your admin account when prompted.
 
-1. Access n8n at [http://localhost:5678/](http://localhost:5678/) and complete the initial setup.
-2. Configure credentials for Postgres and Qdrant as needed.
-3. Import or create your AI workflows in n8n.
-4. Use RSSHub to generate custom RSS feeds from any website.  
-   - If you enabled Basic Auth, use the credentials from `rsshub/.env` (`AUTH_USER`/`AUTH_PASS`).
-   - Example API call:  
-     ```
-     curl -u autoai:changeme123 http://localhost:1200/github/trending/daily
-     ```
-5. Integrate RSSHub feeds into n8n using the HTTP Request node with Basic Auth.
-6. Monitor logs and service health via Docker.
+🎉 You're now inside your AI Agent Lab!
 
 ---
 
-## 🏢 About Athsent
+## 🧪 What's Next?
 
-This repository is maintained and customized by **Athsent** as part of the **AutoAI** product suite. For enterprise support, custom integrations, or product inquiries, please contact us at [info@athsent.com](mailto:info@athsent.com).
+In the AI Agent Lab series, you will:
 
----
-
-## 📚 Resources
-
-- [n8n Documentation](https://docs.n8n.io/)
-- [Qdrant Documentation](https://qdrant.tech/)
-- [PostgreSQL Documentation](https://www.postgresql.org/)
-- [Cloudflare Tunnel Documentation](https://developers.cloudflare.com/cloudflare-one/connections/connect-apps/)
-- [RSSHub Documentation](https://docs.rsshub.app/)
+1. Build your first workflow: auto-send Telegram messages, update Notion, etc.
+2. Connect to LLMs (e.g., OpenAI, Ollama) for text generation and document analysis
+3. Create real autonomous AI agents with memory and tools
+4. Use RSSHub + RAG to create smart research bots
 
 ---
 
-## 📝 License
+## 🔄 Common Commands
 
-This project is licensed under the MIT License.
+| Action           | Command                       |
+|------------------|-------------------------------|
+| Stop everything  | `docker compose down`         |
+| Restart system   | `docker compose up -d`        |
+| View logs        | `docker compose logs -f`      |
+
+---
+
+## 💡 Troubleshooting Tips
+
+- **Ports not working?** Make sure Docker Desktop is running.
+- **Can’t access dashboard?** Check if port `5678` is in use or restart Docker.
+- **Windows users:** Use Git Bash or WSL for better CLI experience.
+
+---
+
+## 📘 Final Notes
+
+This environment sets the foundation for all upcoming lessons in the **AI Agent Lab**.
+
+Whether you're a freelancer, operator, or founder, this lab will help you prototype, test, and automate real-world workflows using AI.
+
+---
+
+## 🎥 YouTube Setup Walkthrough
+
+> 📺 A full video tutorial will be published tomorrow on our YouTube channel.  
+> We'll guide you step-by-step to get everything running — even if you're not technical.
+
+Stay tuned!
+
+---
+
+## 🙌 Contribute or Ask Questions
+
+If you find this useful or spot issues:
+- ⭐ Star the repo
+- 🐛 Open an issue
+- 📬 Join the [AutoAI community](https://community.autoai.asia)
+
+---
+
+Made with ❤️ by [@kientranasia](https://github.com/kientranasia)  
+[AutoAI Starter Kit](https://github.com/kientranasia/AutoAI-n8n-Kit)
