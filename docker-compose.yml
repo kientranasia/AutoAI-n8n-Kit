@@ -1,53 +1,18 @@
+version: '3.8'
+
 volumes:
   n8n_storage:
   postgres_storage:
-  ollama_storage:
   qdrant_storage:
 
 networks:
-  demo:
-
-x-n8n: &service-n8n
-  image: n8nio/n8n:latest
-  networks: ['demo']
-  environment:
-    - DB_TYPE=postgresdb
-    - DB_POSTGRESDB_HOST=postgres
-    - DB_POSTGRESDB_USER=${POSTGRES_USER}
-    - DB_POSTGRESDB_PASSWORD=${POSTGRES_PASSWORD}
-    - N8N_DIAGNOSTICS_ENABLED=false
-    - N8N_PERSONALIZATION_ENABLED=false
-    - N8N_ENCRYPTION_KEY
-    - N8N_USER_MANAGEMENT_JWT_SECRET
-    - WEBHOOK_URL=${N8N_URL}
-  links:
-    - postgres
-
-x-ollama: &service-ollama
-  image: ollama/ollama:latest
-  container_name: ollama
-  networks: ['demo']
-  restart: unless-stopped
-  ports:
-    - 11434:11434
-  volumes:
-    - ollama_storage:/root/.ollama
-
-x-init-ollama: &init-ollama
-  image: ollama/ollama:latest
-  networks: ['demo']
-  container_name: ollama-pull-llama
-  volumes:
-    - ollama_storage:/root/.ollama
-  entrypoint: /bin/sh
-  command:
-    - "-c"
-    - "sleep 3; OLLAMA_HOST=host.docker.internal:11434 ollama pull llama3.1; OLLAMA_HOST=host.docker.internal:11434 ollama pull nomic-embed-text"
+  autoai-net:
 
 services:
   postgres:
     image: postgres:16-alpine
-    networks: ['demo']
+    container_name: autoai-postgres
+    networks: ['autoai-net']
     restart: unless-stopped
     ports:
       - 5432:5432
@@ -62,80 +27,68 @@ services:
       interval: 5s
       timeout: 5s
       retries: 10
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
 
   n8n:
-    <<: *service-n8n
-    container_name: n8n
+    image: n8nio/n8n:latest
+    container_name: autoai-n8n
+    networks: ['autoai-net']
     restart: unless-stopped
     ports:
       - 5678:5678
+    environment:
+      - DB_TYPE=postgresdb
+      - DB_POSTGRESDB_HOST=postgres
+      - DB_POSTGRESDB_USER=${POSTGRES_USER}
+      - DB_POSTGRESDB_PASSWORD=${POSTGRES_PASSWORD}
+      - N8N_DIAGNOSTICS_ENABLED=false
+      - N8N_PERSONALIZATION_ENABLED=false
+      - N8N_ENCRYPTION_KEY
+      - N8N_USER_MANAGEMENT_JWT_SECRET
+      - WEBHOOK_URL=${N8N_URL}
     volumes:
       - n8n_storage:/home/node/.n8n
-      - ./n8n/backup:/backup
-      - ./shared:/data/shared
     depends_on:
       postgres:
         condition: service_healthy
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
 
   qdrant:
     image: qdrant/qdrant
-    container_name: qdrant
-    networks: ['demo']
+    container_name: autoai-qdrant
+    networks: ['autoai-net']
     restart: unless-stopped
     ports:
       - 6333:6333
     volumes:
       - qdrant_storage:/qdrant/storage
-
-  ollama-cpu:
-    profiles: ["cpu"]
-    <<: *service-ollama
-
-  ollama-gpu:
-    profiles: ["gpu-nvidia"]
-    <<: *service-ollama
     deploy:
       resources:
-        reservations:
-          devices:
-            - driver: nvidia
-              count: 1
-              capabilities: [gpu]
+        limits:
+          cpus: '0.5'
+          memory: 512M
 
-  ollama-pull-llama-cpu:
-    profiles: ["cpu"]
-    <<: *init-ollama
+  cloudflare-tunnel:
+    image: cloudflare/cloudflared:latest
+    container_name: autoai-cloudflare-tunnel
+    hostname: cloudflare-tunnel
+    networks: ['autoai-net']
+    restart: unless-stopped
+    command: tunnel --no-autoupdate run
+    environment:
+      - TUNNEL_TOKEN=${CLOUDFLARE_TUNNEL_TOKEN}
     depends_on:
-      - ollama-cpu
-
-  ollama-pull-llama-gpu:
-    profiles: ["gpu-nvidia"]
-    <<: *init-ollama
-    depends_on:
-      - ollama-gpu
-  # Uncomment the following block to enable Ngrok Tunnel
-  # ngrok:
-  #     image: ngrok/ngrok:latest
-  #     restart: unless-stopped
-  #     command:
-  #       - "start"
-  #       - "--all"
-  #       - "--config"
-  #       - "/etc/ngrok.yml"
-  #     volumes:
-  #       - ./ngrok.yml:/etc/ngrok.yml
-  #     ports:
-  #       - 4040:4040
-  #     depends_on:
-  #       - n8n  
-  # Uncomment the following block to enable Cloudflare Tunnel
-  # cloudflare-tunnel:
-  #     image: cloudflare/cloudflared:latest              
-  #     container_name: cloudflare-tunnel                 
-  #     hostname: cloudflare-tunnel                            
-  #     restart: unless-stopped                           
-  #     command: tunnel --no-autoupdate run
-  #     environment:
-  #       - TUNNEL_TOKEN=${CLOUDFLARE_TUNNEL_TOKEN}       
-  #     depends_on:
-  #       - n8n
+      - n8n
+    deploy:
+      resources:
+        limits:
+          cpus: '0.2'
+          memory: 128M

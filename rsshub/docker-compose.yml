@@ -1,0 +1,22 @@
+version: '3.8'
+
+services:
+  rsshub:
+    image: diygod/rsshub:latest
+    container_name: autoai-rsshub
+    restart: unless-stopped
+    ports:
+      - 1200:1200
+    env_file:
+      - .env
+    networks:
+      - autoai-net
+    deploy:
+      resources:
+        limits:
+          cpus: '0.2'
+          memory: 128M
+
+networks:
+  autoai-net:
+    external: true 
